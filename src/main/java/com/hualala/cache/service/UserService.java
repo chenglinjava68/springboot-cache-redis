@@ -5,10 +5,7 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Sets;
@@ -25,7 +22,7 @@ public class UserService {
 	public User save(User user) {
 		users.add(user);
 		return user;
-	}
+}
 
 	@CachePut(key = "'user:'+#user.id")
 	public User update(User user) {
@@ -35,6 +32,7 @@ public class UserService {
 	}
 
 	@CacheEvict(key = "'user:'+#id")
+	/*@Caching(evict = { @CacheEvict(key = "'user:'+#id"), @CacheEvict(key = "'user:list'") })*/
 	public Boolean delete(final Long id) {
 		log.info("移除user缓存,id:" + id);
 		Boolean deleted = users.removeIf(u -> u.getId().equals(id));

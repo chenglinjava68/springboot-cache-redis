@@ -64,27 +64,69 @@ public class ExampleBootTests {
 		changeUser.setFirstName("aleen");
 		userService.update(changeUser);
 		mapString = stringRedisTemplate.opsForValue().get("user:" + ID);
-//		assertThat(mapString).isEqualTo(
-//				"[\"com.hualala.cache.domain.User\",{\"id\":1,\"firstName\":\"aleen\",\"lastName\":\"cheng\",\"nickName\":\"aleenjava\",\"job\":\"softEngineer\",\"married\":true}]");
+		assertThat(mapString).isEqualTo(
+				"[\"com.hualala.cache.domain.User\",{\"id\":1,\"firstName\":\"aleen\",\"lastName\":\"cheng\",\"nickName\":\"aleenjava\",\"job\":\"softEngineer\",\"married\":true}]");
 		optional = userService.findById(ID);
 		assertThat(optional.isPresent()).isTrue();
 		assertThat(optional.get().getFirstName()).isEqualTo("aleen");
 		results = userService.findAll();
 		Thread.sleep(2000);
 		log.info("延迟两秒再查询列表2，保证异步更新完毕....");
-		assertThat(results.size()).isEqualTo(1);
-		assertThat(results.stream().filter(u -> u.getFirstName().equals("aleen")).findFirst().isPresent())
+		assertThat(results.size()).isEqualTo(2);
+	    assertThat(results.stream().filter(u -> u.getFirstName().equals("aleen")).findFirst().isPresent())
 				.isEqualTo(true);
 		//removed
 		userService.delete(ID);
+		userService.updateAll();
 		mapString = stringRedisTemplate.opsForValue().get("user:" + ID);
 		assertThat(mapString).isNullOrEmpty();
 		Thread.sleep(2000);
 		log.info("延迟两秒再查询列表3，保证异步更新完毕....");
 		results = userService.findAll();
-		assertThat(results.size()).isEqualTo(0);
+		assertThat(results.size()).isEqualTo(1);
 	}
-
+	@Test
+	public void testUsers() throws Exception {
+		User user = new User(ID, "lin", "cheng");
+		User user1 = new User(2L,"lu","xx");
+		userService.save(user);
+		userService.save(user1);
+		String mapString = stringRedisTemplate.opsForValue().get("user:" + ID);
+		assertThat(mapString).isEqualTo("[\"com.hualala.cache.domain.User\",{\"id\":1,\"firstName\":\"lin\",\"lastName\":\"cheng\",\"nickName\":\"aleenjava\",\"job\":\"softEngineer\",\"married\":true}]");
+		Optional<User> optional = userService.findById(ID);
+		assertThat(optional.isPresent()).isTrue();
+		Thread.sleep(2000);
+		log.info("延迟两秒再查询列表1，保证异步更新完毕....");
+		Set<User> results = userService.findAll();
+		assertThat(results.size()).isEqualTo(2);
+		assertThat(results.stream().filter(u -> u.getFirstName().equals("lin")).findFirst().isPresent())
+				.isEqualTo(true);
+		//updated
+		User changeUser = optional.get();
+		changeUser.setFirstName("aleen");
+		userService.update(changeUser);
+		mapString = stringRedisTemplate.opsForValue().get("user:" + ID);
+		assertThat(mapString).isEqualTo(
+				"[\"com.hualala.cache.domain.User\",{\"id\":1,\"firstName\":\"aleen\",\"lastName\":\"cheng\",\"nickName\":\"aleenjava\",\"job\":\"softEngineer\",\"married\":true}]");
+		optional = userService.findById(ID);
+		assertThat(optional.isPresent()).isTrue();
+		assertThat(optional.get().getFirstName()).isEqualTo("aleen");
+		results = userService.findAll();
+		Thread.sleep(2000);
+		log.info("延迟两秒再查询列表2，保证异步更新完毕....");
+		assertThat(results.size()).isEqualTo(2);
+	/*	assertThat(results.stream().filter(u -> u.getFirstName().equals("aleen")).findFirst().isPresent())
+				.isEqualTo(true);*/
+		//removed
+		userService.delete(ID);
+		userService.updateAll();
+		mapString = stringRedisTemplate.opsForValue().get("user:" + ID);
+		assertThat(mapString).isNullOrEmpty();
+		Thread.sleep(2000);
+		log.info("延迟两秒再查询列表3，保证异步更新完毕....");
+		results = userService.findAll();
+		assertThat(results.size()).isEqualTo(1);
+	}
 	@Test
 	public void testAddress() throws Exception {
 		//created
@@ -92,7 +134,7 @@ public class ExampleBootTests {
 		addressService.save(address);
 		String mapString = stringRedisTemplate.opsForValue().get("address:" + ID);
 		assertThat(mapString).isEqualTo(
-				"[\"com.hualala.cache.domain.Address\",{\"id\":1,\"province\":\"hunan\",\"city\":\"loudi\",\"zipcode\":\"000000\"}]");
+				"[\"com.hualala.cache.domain.Address\",{\"id\":1,\"province\":\"beijing\",\"city\":\"xizhimen\",\"zipcode\":\"000000\"}]");
 		Optional<Address> optional = addressService.findById(ID);
 		assertThat(optional.isPresent()).isTrue();
 //		Assert.assertEquals();

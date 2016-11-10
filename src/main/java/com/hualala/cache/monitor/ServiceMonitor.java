@@ -23,7 +23,7 @@ public class ServiceMonitor {
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
 
-	@AfterReturning(pointcut = "execution(* com.hualala..*Service.save(..)) || execution(* org.jdonee..*Service.update(..)) || execution(* org.jdonee..*Service.delete(..))", returning = "returnValue")
+	@AfterReturning(pointcut = "execution(* com.hualala..*Service.save(..)) || execution(* com.hualala..*Service.delete(..))|| execution(* com.hualala..*Service.update(..)) ", returning = "returnValue")
 	public void logServiceAccess(JoinPoint joinPoint, Object returnValue) {
 		String declaringTypeName = joinPoint.getSignature().getDeclaringTypeName();
 		if (declaringTypeName.contains("UserService")) {
